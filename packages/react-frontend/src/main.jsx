@@ -1,15 +1,7 @@
-// src/main.jsx
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import "./main.css";
-
-function MyApp() {
-  return (
-    <div>
-      <h1>Hello, React!</h1>
-    </div>
-  );
-}
+import MyApp from "./MyApp";
 
 // Create the container
 const container = document.getElementById("root");
