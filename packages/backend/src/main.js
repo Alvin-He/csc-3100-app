@@ -1,9 +1,12 @@
 // backend.js
 import express from "express";
 
+import cors from "cors";
+
 const app = express();
 const port = 8000;
 
+app.use(cors());
 app.use(express.json());
 
 const users = {
@@ -87,7 +90,7 @@ const addUser = (user) => {
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
   addUser(userToAdd);
-  res.send();
+  res.status(201).send(users["users_list"]);
 });
 
 const removeUserById= (id) => {
@@ -99,7 +102,7 @@ const removeUserById= (id) => {
 
 app.delete("/users/:id", (req, res) => {
     const userToDelete = req.params.id;
-    if (removeUserById(userToDelete)) res.status(200).send("Success");
+    if (removeUserById(userToDelete)) res.status(204).send("Success");
     else res.status(404).send("Not Found");
 });
 
