@@ -1,6 +1,6 @@
 // backend.js
 import express from "express";
-
+import userService from "./user-service.js";
 import cors from "cors";
 
 const app = express();
@@ -9,101 +9,65 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
-const users = {
-  users_list: [
-    {
-      id: "xyz789",
-      name: "Charlie",
-      job: "Janitor",
-    },
-    {
-      id: "abc123",
-      name: "Mac",
-      job: "Bouncer",
-    },
-    {
-      id: "ppp222",
-      name: "Mac",
-      job: "Professor",
-    },
-    {
-      id: "yat999",
-      name: "Dee",
-      job: "Aspring actress",
-    },
-    {
-      id: "zap555",
-      name: "Dennis",
-      job: "Bartender",
-    },
-  ],
-};
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-const findUserByName = (users, name) => {
-  return users["users_list"].filter((user) => user["name"] === name);
-};
+app.get("/users", async (req, res) => {
+  try {
+    let result = [];
 
-const findUserByJob = (users, job) => {
-    return users["users_list"].filter((user) => user["job"] === job);
-};
+    const name = req.query.name;
+    if (name != undefined) {
+      result = await userService.findUserByName(name);
+    } else {
+      result = await userService.getUsers(undefined, undefined);
+    }
 
-app.get("/users", (req, res) => {
-  let result = users;
+    const job = req.query.job;
+    if (job != undefined) {
+      let matched = await userService.findUserByJob(job);
+      result = result.filter((x) => matched.findIndex((y) => x.id == y.id) != -1);
+    }
 
-  const name = req.query.name;
-  if (name != undefined) {
-    let matched_users = findUserByName(users, name);
-    result = { users_list: matched_users };
+    res.send(result); 
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("Bad Request");
   }
-
-  const job = req.query.job;
-  if (job != undefined) {
-    let matched_users = findUserByJob(result, job);
-    result = { users_list: matched_users};
-  }
-
-    res.send(result);
 });
 
-const findUserById = (id) =>
-  users["users_list"].find((user) => user["id"] === id);
-
-app.get("/users/:id", (req, res) => {
+app.get("/users/:id", async (req, res) => {
   const id = req.params["id"]; //or req.params.id
-  let result = findUserById(id);
-  if (result === undefined) {
+  try {
+    res.send(await userService.findUserById(id));
+  } catch (error) {
+    console.log(error)
     res.status(404).send("Resource not found.");
-  } else {
-    res.send(result);
   }
 });
 
-const addUser = (user) => {
-  users["users_list"].push(user);
-  return user;
-};
-
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.status(201).send(users["users_list"]);
+  try {
+    let users = await userService.addUser(userToAdd);
+    console.log(users)
+    res.status(201).send(users);
+  } catch (error) {
+    console.log(error)
+    res.status(400).send("Bad Request");
+  }
 });
 
-const removeUserById= (id) => {
-    let idx = users["users_list"].findIndex((x) => x.id === id);
-    if (idx >= 0) users["users_list"].splice(idx, 1)
-    else return false
-    return true
-}
-
-app.delete("/users/:id", (req, res) => {
-    const userToDelete = req.params.id;
-    if (removeUserById(userToDelete)) res.status(204).send("Success");
-    else res.status(404).send("Not Found");
+app.delete("/users/:id", async (req, res) => {
+  const userToDelete = req.params.id;
+  try {
+    await userService.removeUser(userToDelete);
+    res.status(204).send("Success");
+  } catch (error) {
+    console.log(error)
+    res.status(400).send("Bad Request");
+  }
 });
 
 

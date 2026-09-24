@@ -32,14 +32,13 @@ function MyApp() {
     }
 
     function updateList(person) {
-        person["id"] = Math.trunc(Math.random() * 100000).toString();
-        console.log(person)
-
         postUser(person)
             .then((res) => {
                 if (res.status == 201) {
                     res.json()
-                        .then((users) => setCharacters(users))
+                        .then((user) => {
+                            setCharacters([...characters, user])
+                        })
                         .catch((error) => {
                             console.log(error)
                         })
@@ -56,7 +55,7 @@ function MyApp() {
     function removeOneCharacter(index) {
         const updated = characters.filter((character, i) => {
             if (i === index) {
-                deleteUser(character.id)
+                deleteUser(character._id)
                     .then((res) => {if (!res.ok) {
                         console.log(`Failed to remove user ${character}`)
                     }})
@@ -72,7 +71,7 @@ function MyApp() {
     useEffect(() => {
         fetchUsers()
             .then((res) => res.json())
-            .then((json) => setCharacters(json["users_list"]))
+            .then((json) => setCharacters(json))
             .catch((error) => {
                 console.log(error);
             });

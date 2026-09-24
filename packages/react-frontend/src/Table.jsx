@@ -14,19 +14,23 @@ function TableHeader() {
 }
 
 function TableBody(props) {
-    const rows = props.characterData.map((row, index) => {
-        return (
-            <tr key={index}>
-                <td>{row.name}</td>
-                <td>{row.job}</td>
-                <td>{row.id}</td>
-                <td>
-                    <button onClick={ () => props.removeCharacter(index)}>Delete</button>
-                </td>
-            </tr>
-        );
+    let rows = <></>;
+    if (props.characterData !== undefined) {
+        console.log(props.characterData)
+        rows = props.characterData.map((row, index) => {
+            return (
+                <tr key={index}>
+                    <td>{row.name}</td>
+                    <td>{row.job}</td>
+                    <td>{row._id}</td>
+                    <td>
+                        <button onClick={ () => props.removeCharacter(index)}>Delete</button>
+                    </td>
+                </tr>
+            );
+        });
     }
-    );
+
     return (
         <tbody>
             {rows}
