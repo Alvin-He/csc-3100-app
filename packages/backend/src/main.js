@@ -1,6 +1,6 @@
 // backend.js
 import express from "express";
-import userService from "./user-service.js";
+import userService from "./services/user-service.js";
 import cors from "cors";
 
 const app = express();
